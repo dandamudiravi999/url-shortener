@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build and test (both modules)
+        run: mvn -B verify
+
+      - name: Run all orchestrator scenarios
+        run: java -jar orchestrator/target/orchestrator.jar run all --out runs
+
+      - name: Verify every audit trail
+        run: |
+          for f in runs/*/audit.jsonl; do
+            java -jar orchestrator/target/orchestrator.jar verify-audit "$f"
+          done
+
+      - name: Upload run reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestrator-runs
+          path: runs/

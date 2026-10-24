@@ -1,0 +1,60 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: url-shortener
+  datasource:
+    # In-memory by default so the service runs with zero setup.
+    # Override with SPRING_DATASOURCE_URL (e.g. jdbc:h2:file:./data/shortener or a Postgres URL).
+    url: jdbc:h2:mem:shortener;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password: ""
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate   # schema is owned by Flyway, Hibernate only validates it
+  flyway:
+    enabled: true
+  cache:
+    type: caffeine
+    cache-names: shortUrlLookup
+    caffeine:
+      spec: maximumSize=10000,expireAfterWrite=10m
+  mvc:
+    problemdetails:
+      enabled: true
+
+shortener:
+  base-url: http://localhost:8080
+  code-length: 7
+  max-generation-attempts: 5
+  max-url-length: 2048
+  analytics:
+    async: true
+    recent-days: 30
+  rate-limit:
+    enabled: true
+    capacity: 20             # burst size per client
+    refill-per-minute: 60    # sustained create requests per client per minute
+  blocked-hosts:
+    - localhost
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.urlshortener: INFO

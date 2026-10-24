@@ -1,0 +1,5 @@
+shortener:
+  analytics:
+    async: false   # record clicks inline so assertions are deterministic
+  rate-limit:
+    capacity: 1000
