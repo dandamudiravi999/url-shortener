@@ -1,0 +1,12 @@
+target/
+*.class
+*.log
+.idea/
+*.iml
+.vscode/
+.DS_Store
+# orchestrator run output and kill switch
+runs/
+.orchestrator/
+# local H2 file databases
+data/
